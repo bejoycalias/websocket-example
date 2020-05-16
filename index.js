@@ -15,9 +15,6 @@ const wss = new WebSocket.Server({ server });
 
 console.log(`WS Started`)
 
-
-const wss = new WebSocket.Server({ server });
-
 wss.on('connection', (ws) => {
   console.log('Connection received.')
   ws.send("Connection received");
