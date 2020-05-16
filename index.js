@@ -6,7 +6,7 @@ const WebSocket = require('ws');
 
 const server = https.createServer({
   cert: fs.readFileSync('./selfsigned.crt'),
-  key: fs.readFileSync('./selfsigned.key')
+  key: fs.readFileSync('./selfsigned.key'),
   port: process.env.WS_PORT || 8443,
   path: '/ws'
 });
