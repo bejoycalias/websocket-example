@@ -1,40 +1,29 @@
-'use strict';
+// Minimal amount of secure websocket server
+var fs = require('fs');
 
-const https = require('https');
-const fs = require('fs');
-const WebSocket = require('ws');
+// read ssl certificate
+var privateKey = fs.readFileSync('./selfsigned.key', 'utf8');
+var certificate = fs.readFileSync('./selfsigned.crt', 'utf8');
 
-const server = https.createServer({
-  cert: fs.readFileSync('./selfsigned.crt'),
-  key: fs.readFileSync('./selfsigned.key'),
-  port: process.env.WS_PORT || 8443,
-  path: '/ws'
+var credentials = { key: privateKey, cert: certificate };
+var https = require('https');
+
+//pass in your credentials to create an https server
+var httpsServer = https.createServer(credentials);
+httpsServer.listen(8443);
+
+var WebSocketServer = require('ws').Server;
+var wss = new WebSocketServer({
+    server: httpsServer
 });
 
-const wss = new WebSocket.Server({ server });
-
-console.log(`WS Started`)
-
-wss.on('connection', (ws) => {
-  console.log('Connection received.')
-  ws.send("Connection received");
-
-  ws.on('message', (message) => {
-    console.log(`Received message => ${message}`)
-  })
-})
-
-server.listen(function listening() {
-  const ws = new WebSocket(`wss://localhost:${server.address().port}`, {
-    rejectUnauthorized: false
-  });
-
-  ws.on('open', function open() {
-    ws.send('All glory to WebSockets!');
-  });
+console.log('Server Started ...');
+wss.on('connection', function connection(ws) {
+    ws.on('message', function incoming(message) {
+        console.log('Received: %s', message);
+        ws.send('Received your message : ' + message)
+    });
+    ws.send('Hello There !!');
 });
 
-wss.on('error', (err) => {
-  console.log('Error ' + err)
-})
 
